@@ -1,0 +1,22 @@
+# rules/hpdiskrules - Henryk's rules for Disk monitoring
+---
+groups:
+  - name: HP Disk Group
+    rules:
+      # this expr is based on
+      # /usr/share/doc/prometheus/examples/consoles/node-disk.html
+      - record: hp:disk_util:pct
+        # we filter disks to 'sdX','vdX','xvdX' only
+        expr: |
+          irate(node_disk_io_time_seconds_total{device=~"x?[vs]d[a-z]"}[5m]) * 100
+      - alert: HP Disk utilization High
+        expr: hp:disk_util:pct > 30
+        for: 5m
+        annotations:
+          summary: |
+            Disk {{ $labels.device }} utilization {{ $value | printf "%.2f" }}%
+            high on {{ $labels.instance }}
+          description: |
+            Disk {{ $labels.device }} utilization {{ $value | printf "%.2f" }}%
+            on {{ $labels.instance }} is too high ( > 30 ) for
+            over 5 minutes.
