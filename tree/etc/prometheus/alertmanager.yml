@@ -1,0 +1,28 @@
+# Sample configuration.
+# See https://prometheus.io/docs/alerting/configuration/ for documentation.
+# Validate with:
+#   yamllint /etc/prometheus/alertmanager.yml
+#   amtool check-config /etc/prometheus/alertmanager.yml
+---
+
+global:
+  # The smarthost and SMTP sender used for mail notifications.
+  smtp_smarthost: 'localhost:25'
+  smtp_from: 'AMD-X2 Prometheus <prometheus@localhost>'
+
+# The directory from which notification templates are read.
+templates:
+  - '/etc/prometheus/alertmanager_templates/*.tmpl'
+
+# basically grabbed from GitLab CE
+route:
+  receiver: default-receiver
+  routes: []
+
+receivers:
+  - name: default-receiver
+    email_configs:
+      - to: 'ansible@localhost'
+        send_resolved: true  # send e-mail on resolved alerts
+
+inhibit_rules: []

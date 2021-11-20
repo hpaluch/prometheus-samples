@@ -1,0 +1,17 @@
+# rules/hpprom.rules - Henryk's rules for Prometheus
+---
+groups:
+  - name: HP Prometheus Group
+    rules:
+      - alert: HP Prometheus failed Backend
+        expr: up < 1
+        for: 5m
+        annotations:
+          summary: |
+            Prometheus Backend {{ $labels.job }} failed
+            on {{ $labels.instance }}
+          description: |
+            Prometheus Backend {{ $labels.job }} on
+            server {{ $labels.instance }} is Down
+            for over 5 minutes.
+

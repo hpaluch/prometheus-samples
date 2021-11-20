@@ -1,0 +1,23 @@
+# rules/hpcpu.rules - Henryk's rules to get CPU usage ratio (0.0-0.1)
+#                     use * 100 to get percentage
+
+groups:
+  - name: HpCpuGroup
+    rules:
+      - record: hp:instance:node_cpus:count
+        expr: count without(cpu, mode) (node_cpu_seconds_total{mode="idle"})
+      - record: hp:instance_mode:node_cpu_seconds:rate5m
+        expr: sum without(cpu) (rate(node_cpu_seconds_total[5m]))
+      - record: hp:instance:node_cpu_utilization:ratio
+        expr: |
+          sum without(mode)
+            (hp:instance_mode:node_cpu_seconds:rate5m{mode!="idle"}) / hp:instance:node_cpus:count
+      - alert: HpAlertCPUUtilOver40Pct2Minutes
+        expr: hp:instance:node_cpu_utilization:ratio * 100 >= 40
+        for: 2m
+        annotations:
+          summary: |
+            High CPU utilization {{ $value | printf "%.2f" }}% on {{ $labels.instance }}
+          description: |
+            {{ $labels.instance }} has more than 40%
+            Utilization (current value: {{ $value | printf "%.2f" }}%) over 2 minutes
