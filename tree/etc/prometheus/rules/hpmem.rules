@@ -1,0 +1,19 @@
+# rules/hpmem.rules - Henryk's rules for Memory monitoring
+---
+groups:
+  - name: HP Memory Group
+    rules:
+      - record: hp:oom_kills:inc
+        expr: |
+          increase(node_vmstat_oom_kill[15m])
+      - alert: HP OOM Kills
+        expr: hp:oom_kills:inc > 0
+        for: 2m
+        annotations:
+          summary: |
+            New {{ $value | printf "%.2f" }} Out of Memory kills
+            on {{ $labels.instance }}
+          description: |
+            There were new {{ $value | printf "%.2f" }}
+            out-of-memory process kills on
+            host {{ $labels.instance }}.
