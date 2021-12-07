@@ -18,6 +18,9 @@ backup your data first!)
 Your Prometheus should be reached on
 - `http://IP_OF_YOUR_MACHINE:9090`
 
+WARNING! Free swap monitor in 
+- `tree/etc/prometheus/rules/hpmem.rules`
+will not work on host *without* swap (typical cloud setup)!
 
 
 

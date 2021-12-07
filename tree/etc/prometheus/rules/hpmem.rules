@@ -17,3 +17,18 @@ groups:
             There were new {{ $value | printf "%.2f" }}
             out-of-memory process kills on
             host {{ $labels.instance }}.
+      - record: hp:swap_free:pct
+        expr: |
+         avg_over_time(node_memory_SwapFree_bytes[5m])
+         / max_over_time(node_memory_SwapTotal_bytes[5m])*100.0
+      - alert: HP Used Swap
+        expr: hp:swap_free:pct < 15
+        for: 2m
+        annotations:
+          summary: |
+            Free Swap only {{ $value | printf "%.2f" }}%
+            on {{ $labels.instance }}
+          description: |
+            Free Swap is only {{ $value | printf "%.2f" }}%
+            which is below 15%.
+            host {{ $labels.instance }}.
