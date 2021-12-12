@@ -15,7 +15,7 @@ groups:
             on {{ $labels.instance }}
           description: |
             There were new {{ $value | printf "%.2f" }}
-            new failed login attempts with Invalid Username on
+            failed login attempts with Invalid Username on
             host {{ $labels.instance }}.
       - record: hp:inval_password:inc
         expr: |

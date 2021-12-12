@@ -25,6 +25,14 @@ So you need to install first these packages:
 sudo apt-get install prometheus prometheus-alertmanager \
      prometheus-node-exporter mtail curl
 ```
+For experiments with local e-mail delivery you have also to 
+install and setup mail server, for example:
+```bash
+sudo apt-get install exim4
+sudo dpkg-reconfigure exim4-config
+# select "local delivery only"
+```
+
 
 To use these examples simply copy `tree/*` to your `/` (but rather
 backup your data first!)
