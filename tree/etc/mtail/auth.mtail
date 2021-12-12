@@ -1,0 +1,57 @@
+# auth.mtail - scan /var/log/auth.log
+# Based on dhcpd.mtail with copyright:
+# Copyright 2008 Google Inc. All Rights Reserved.
+# This file is available under the Apache license.
+#
+# Test with:
+# mtail --one_shot --progs /etc/mtail/ --log_dir /var/log --logs /var/log/auth.log
+
+counter total_invalid_users
+counter invalid_user by username,ip
+counter total_failed_passwords
+counter failed_password by username,ip
+counter total_log_entries
+counter log_entries by app
+
+# The `syslog' decorator defines a procedure.  When a block of mtail code is
+# "decorated", it is called before entering the block.  The block is entered
+# when the keyword `next' is reached.
+def syslog {
+  /^(?P<date>(?P<legacy_date>\w+\s+\d+\s+\d+:\d+:\d+)|(?P<rfc3339_date>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+[+-]\d{2}:\d{2}))/ +
+  /\s+(?:\w+@)?(?P<hostname>[\w\.-]+)\s+(?P<app>[\w\.-]+)(?:\[(?P<pid>\d+)\])?:\s+(?P<message>.*)/ {
+    # If the legacy_date regexp matched, try this format.
+    len($legacy_date) > 0 {
+      strptime($2, "Jan _2 15:04:05")
+    }
+    # If the RFC3339 style matched, parse it this way.
+    len($rfc3339_date) > 0 {
+      strptime($rfc3339_date, "2006-01-02T03:04:05-0700")
+    }
+    # Call into the decorated block
+    next
+  }
+}
+
+@syslog {
+    getfilename() =~ /auth.log/ {
+        len($app) > 0 {
+	    log_entries[tolower($app)]++
+        }
+
+        # Invalid user aaaa from ::1
+        /Invalid user (\S+) from (\S+)/ {
+	    invalid_user[$1][$2]++
+	    total_invalid_users++
+        }
+
+        # Failed password for ansible from ::1
+        /Failed password for (\S+) from (\S+)/ {
+            failed_password[$1][$2]++
+            total_failed_passwords++
+        }
+
+        /./ {
+            total_log_entries++
+        }
+    }
+}
