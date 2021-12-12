@@ -1,0 +1,33 @@
+# rules/hpmtail.rules - Henryk's rules for MTail log scanner
+---
+groups:
+  - name: HP MTail Group
+    rules:
+      - record: hp:inval_users:inc
+        expr: |
+          increase(total_invalid_users[15m])
+      - alert: HP Invalid user failed logins
+        expr: hp:inval_users:inc > 0
+        for: 2m
+        annotations:
+          summary: |
+            New {{ $value | printf "%.2f" }} failed logins
+            on {{ $labels.instance }}
+          description: |
+            There were new {{ $value | printf "%.2f" }}
+            new failed login attempts with Invalid Username on
+            host {{ $labels.instance }}.
+      - record: hp:inval_password:inc
+        expr: |
+          increase(total_failed_passwords[15m])
+      - alert: HP invalid passwords
+        expr: hp:inval_password:inc > 0
+        for: 2m
+        annotations:
+          summary: |
+            New {{ $value | printf "%.2f" }} failed passwords
+            on {{ $labels.instance }}
+          description: |
+            There were new {{ $value | printf "%.2f" }}
+            failed login attempts with Invalid Password on
+            host {{ $labels.instance }}.

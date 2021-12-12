@@ -53,3 +53,10 @@ scrape_configs:
       - targets: ['localhost:9100']
         labels:
           instance: 'amd64-x2'
+
+  - job_name: mtail
+    # Google's mtail log scanner written in Go
+    static_configs:
+      - targets: ['localhost:3903']
+        labels:
+          instance: 'amd64-x2'
