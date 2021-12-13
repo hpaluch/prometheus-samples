@@ -1,0 +1,16 @@
+[Unit]
+Description=MTail
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/mtail
+ExecStart=/usr/bin/mtail --progs /etc/mtail --logtostderr --port 3903 --logs $LOGS $EXTRA_ARGS
+Restart=on-failure
+User=mtail
+
+# Limit memory leaks
+MemoryMax=1G
+MemorySwapMax=0
+
+[Install]
+WantedBy=multi-user.target

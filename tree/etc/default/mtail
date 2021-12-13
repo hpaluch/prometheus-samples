@@ -19,4 +19,5 @@ LOGS=/var/log/auth.log
 #METRIC_PUSH_INTERVAL=
 
 # Extra command-line arguments to pass to the server.
-#EXTRA_ARGS=""
+EXTRA_ARGS="-address 127.0.0.1"
+

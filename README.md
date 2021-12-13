@@ -4,7 +4,6 @@ My examples for Prometheus and Alert Manager.
 See https://prometheus.io/ for details on Prometheus.
 
 Now we also use `mtail` to scan `auth.log` for failed logins
-(TODO)
 
 Tested on:
 
@@ -33,12 +32,20 @@ sudo dpkg-reconfigure exim4-config
 # select "local delivery only"
 ```
 
-
 To use these examples simply copy `tree/*` to your `/` (but rather
 backup your data first!)
 
-Your Prometheus should be reached on
-- `http://IP_OF_YOUR_MACHINE:9090`
+WARNING! There is fixed version of
+- `/lib/systemd/system/mtail.service`
+under
+- `tree/lib/systemd/system/mtail.service`
+(missing `$EXTRA_ARGS` variable)
+
+
+Your Prometheus should be reached on LOCALHOST only now
+- `http://127.0.0.1:9090`
+To access Prometheus from remote machine you should use 
+SSH tunnels.
 
 To see mtail metrics try:
 ```bash
@@ -48,6 +55,5 @@ curl 127.0.0.1:3903/metric
 WARNING! Free swap monitor in 
 - `tree/etc/prometheus/rules/hpmem.rules`
 will not work on host *without* swap (typical cloud setup)!
-
 
 
