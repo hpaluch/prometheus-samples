@@ -1,0 +1,42 @@
+# kernel-errors.mtail -  scan custom /var/log/kernel-errors.log for kernel errors
+# Based on dhcpd.mtail with copyright:
+# Copyright 2008 Google Inc. All Rights Reserved.
+# This file is available under the Apache license.
+#
+# Test with:
+# mtail --one_shot --progs /etc/mtail/ --log_dir /var/log --logs /var/log/auth.log,/var/log/kernel-errors.log
+
+counter total_kernel_errors
+counter kernel_errors by prio
+
+# WARNING! We use custom log messages for /var/log/kernel-errors.log
+# example:
+# Dec 19 09:12:25 deb11-x2 kern.err: [ 3568.467092] blk_update_request: I/O error, dev fd0, ...
+
+def syslog {
+  /^(?P<date>(?P<legacy_date>\w+\s+\d+\s+\d+:\d+:\d+)|(?P<rfc3339_date>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+[+-]\d{2}:\d{2}))/ +
+  /\s+(?:\w+@)?(?P<hostname>[\w\.-]+)\s+kern\.(?P<prio>[\w]+):\s+(?P<message>.*)/ {
+    # If the legacy_date regexp matched, try this format.
+    len($legacy_date) > 0 {
+      strptime($2, "Jan _2 15:04:05")
+    }
+    # If the RFC3339 style matched, parse it this way.
+    len($rfc3339_date) > 0 {
+      strptime($rfc3339_date, "2006-01-02T03:04:05-0700")
+    }
+    # Call into the decorated block
+    next
+  }
+}
+
+@syslog {
+    getfilename() =~ /kernel-errors.log/ {
+        len($prio) > 0 {
+	    kernel_errors[tolower($prio)]++
+        }
+
+        /./ {
+            total_kernel_errors++
+        }
+    }
+}

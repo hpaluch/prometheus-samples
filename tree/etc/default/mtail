@@ -1,5 +1,5 @@
 # List of files to monitor (mandatory).
-LOGS=/var/log/auth.log
+LOGS=/var/log/auth.log,/var/log/kernel-errors.log
 
 ## Metrics exporting.
 

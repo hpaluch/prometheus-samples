@@ -1,0 +1,23 @@
+# hpkernel-errors.rules - report kernel errors
+# depends on mtail - /etc/mtail/kernel-errors.mtail
+# depends on /var/log/kernel-errors.log with proper format, see
+#    - /etc/rsyslog.d/1-templates.conf
+#    - /etc/rsyslog.d/99-hpkernel-errors.conf
+---
+groups:
+  - name: HP Kernel Errors
+    rules:
+      - record: hp:total_kernel_errors:inc
+        expr: |
+          increase(total_kernel_errors{prog="kernel-errors.mtail"}[15m])
+      - alert: HP new kernel errors
+        expr: hp:total_kernel_errors:inc > 0
+        for: 2m
+        annotations:
+          summary: |
+            New {{ $value | printf "%.0f" }} kernel errors
+            on {{ $labels.instance }}
+          description: |
+            There were new {{ $value | printf "%.0f" }}
+            kernel errors on
+            host {{ $labels.instance }}.
