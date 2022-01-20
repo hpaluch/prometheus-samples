@@ -20,18 +20,3 @@ groups:
             Disk {{ $labels.device }} utilization {{ $value | printf "%.2f" }}%
             on {{ $labels.instance }} is too high ( > 30 ) for
             over 5 minutes.
-      - record: hp:fs_errors:inc
-        expr: |
-          increase(node_filesystem_device_error[15m])
-      - alert: HP New Filesystem errors
-        expr: hp:fs_errors:inc > 0
-        for: 2m
-        annotations:
-          summary: |
-            New {{ $value | printf "%.2f" }} errors
-            on {{ $labels.device }} at {{ $labels.mountpoint }}
-          description: |
-            Disk {{ $labels.device }} mounted at {{ $labels.mountpoint }}
-            with filesystem {{ $labels.fstype }}
-            has new errors {{ $value | printf "%.2f" }} on
-            host {{ $labels.instance }}.
